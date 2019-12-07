@@ -37,8 +37,8 @@ const styles = StyleSheet.create({
 const serverURL = 'https://ninproxy.herokuapp.com/nin/info';
 /**
  * Modified fetch API with timeout. default value is 5 second
- * @param {string} url 
- * @param {number} timeout 
+ * @param {string} url
+ * @param {number} timeout
  */
 const ninFetch = async (url, timeout = 5000)=> {
     return Promise.race([
@@ -65,8 +65,8 @@ const App = () => {
       })
       setAuditLogs(logs || []);
       setServerTime(response.timeInSec);
-    }catch(err){
-      console.error(err);
+    } catch(err){
+      //console.error(err);
     }
     setInProgress(false);
   }
@@ -75,7 +75,19 @@ const App = () => {
    * On load hook that will fetch server time and logs on load
    */
   useEffect(() => {
-    fetchData();
+    let isRunning = false;
+    const intervalId = setInterval(async ()=> {
+      if(!isRunning){
+        isRunning = true;
+        await fetchData();
+        isRunning = false;
+      }
+    }, 3000);
+
+    return ()=>{
+      clearInterval(intervalId);
+    }
+
   }, []);
 
   return (
